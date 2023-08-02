@@ -61,6 +61,8 @@ def post_model_delete_view(request, id):
     obj = get_object_or_404(PostModel, id=id)
     if request.method=='POST':
         obj.delete()
+        messages.success(request,"Deleted post!")
+
         return HttpResponseRedirect("/blog/")
 
     
