@@ -2,6 +2,8 @@ from django.shortcuts import get_object_or_404, render, HttpResponse
 from .models import PostModel
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest,Http404,HttpResponseRedirect
+from .forms import PostModelForm
+from django.contrib import messages
 # Create your views here.
 
 
@@ -24,11 +26,50 @@ def post_model_detail_view(request,id):
     return render(request,template,context)
 
 
+def post_model_create_view(request):
+    form = PostModelForm(request.POST or None)
+    if form.is_valid():
+        obj = form.save(commit=False)
+        obj.save()
+        messages.success(request,"created a new blog post!")
+        return HttpResponseRedirect("/blog/{num}".format(num=obj.id))
+
+    context = {'form':form}
+    
+    template = 'blog/post_create.html'
+
+    return render(request,template,context)
 
 
+def post_model_update_view(request, id):
+    obj = get_object_or_404(PostModel, id=id)
+    form = PostModelForm(request.POST or None, instance=obj)
+    if form.is_valid():
+        obj = form.save(commit=False)
+        obj.save()
+        messages.success(request,"Updated post!")
+        return HttpResponseRedirect("/blog/{num}".format(num=obj.id))
+
+    context = {'form':form}
+    
+    template = 'blog/post_update.html'
+
+    return render(request,template,context)
 
 
+def post_model_delete_view(request, id):
+    obj = get_object_or_404(PostModel, id=id)
+    if request.method=='POST':
+        obj.delete()
+        return HttpResponseRedirect("/blog/")
 
+    
+
+    context = {'object':obj}
+    
+    template = 'blog/post_delete.html'
+
+    return render(request,template,context)
 
 
 
