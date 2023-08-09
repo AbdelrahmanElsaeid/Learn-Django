@@ -4,11 +4,19 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest,Http404,HttpResponseRedirect
 from .forms import PostModelForm
 from django.contrib import messages
+from django.db.models import Q
 # Create your views here.
 
 
 def post_model_list_view(request):
     qs = PostModel.objects.all()
+    query = request.GET.get('q')
+    if query is not None:
+        qs = PostModel.objects.filter(
+            Q(title__icontains=query)|
+            Q(content__icontains=query)|
+            Q(slug__icontains=query)
+        )
     context = {'object_list':qs}
     
     template = 'blog/post_list.html'
